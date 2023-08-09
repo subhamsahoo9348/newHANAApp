@@ -1,0 +1,55 @@
+/* Enter your custom styles here */
+
+.vRow {
+    margin-left: 35px;
+    margin-right: 10px;
+}
+
+.b {
+    margin-left: 35px;
+}
+
+/* #container-salesorder---View1--search-F{
+    height: 30px;
+} */
+
+span#container-salesorder---View1--go-inner,
+span#container-salesorder---View1--fileUpload-fu_button-inner {
+    color: white;
+    background-color: rgb(73, 142, 202);
+    height: max-content;
+}
+
+span#container-salesorder---View1--fileUpload-fu_button-img {
+    color: white;
+}
+
+div#container-salesorder---View1--bar-BarPH {
+    box-shadow: inset 0 -0.0625rem rgba(250, 250, 250, 0.72);
+}
+
+div#__bar0 {
+    box-shadow: inset 0 -0.0625rem rgba(250, 250, 250, 0.72);
+    background-color: rgba(250, 250, 250, 0.72);
+}
+
+span#container-salesorder---View1--downloadTemplate-inner,
+span#container-salesorder---View1--createOrder-inner {
+    border: 1px solid;
+}
+
+input {
+    width: 100%;
+}
+
+#container-salesorder---View1--bar {
+    margin-left: 480px;
+}
+
+#container-salesorder---View1--input-content,
+#container-salesorder---View1--search-F,
+#container-salesorder---View1--uniqueIDinput-content,
+#container-salesorder---View1--date-content {
+    height: 30px;
+    width: 350px;
+}

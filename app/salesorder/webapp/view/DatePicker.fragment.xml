@@ -1,0 +1,37 @@
+<core:FragmentDefinition
+    xmlns:form="sap.ui.layout.form"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Dialog
+        id="dateDialog"
+        title="DOWNLOAD TEMPLETE"
+        titleAlignment="Center"
+        contentWidth="30%"
+        
+        contentHeight="20%"
+    >
+        <content>
+        <Label text="DATE RANGE" required="true" ></Label>
+          <DateRangeSelection id="dateRange"></DateRangeSelection>
+        <Label text="TEMPLETE NAME" required="true" ></Label>
+          <Input id="templeteName" placeholder="TempleteName"></Input>
+        </content>
+        <beginButton>
+            <Button
+                tooltip="DownloadTemplete"
+                text="DownloadTemplete"
+                type="Accept"
+                press="downloadTemplete"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                tooltip="Cancel"
+                text="CANCEL"
+                type="Reject"
+                press=".onCloseDate"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

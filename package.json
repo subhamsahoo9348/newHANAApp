@@ -1,0 +1,47 @@
+{
+    "name": "MyHANAApp",
+    "version": "1.0.0",
+    "description": "A simple CAP project.",
+    "repository": "<Add your repository here>",
+    "license": "UNLICENSED",
+    "private": true,
+    "dependencies": {
+        "@sap/cds": "^6.8.4",
+        "@sap/cds-hana": "^2",
+        "@sap/cds-odata-v2-adapter-proxy": "^1.9.21",
+        "@sap/xssec": "^3",
+        "express": "^4",
+        "passport": "^0"
+    },
+    "scripts": {
+        "start": "cds-serve",
+        "watch-salesorder": "cds watch --open salesorder/webapp/index.html?sap-ui-xx-viewCache=false",
+        "undeploy": "cf undeploy MyHANAApp --delete-services --delete-service-keys --delete-service-brokers",
+        "build": "rimraf resources mta_archives && mbt build --mtar archive",
+        "deploy": "cf deploy mta_archives/archive.mtar --retries 1",
+        "watch-headeritem": "cds watch --open headeritem/webapp/index.html?sap-ui-xx-viewCache=false"
+    },
+    "cds": {
+        "build": {
+            "tasks": [
+                {
+                    "for": "hana",
+                    "dest": "../db"
+                },
+                {
+                    "for": "node-cf"
+                }
+            ]
+        },
+        "requires": {
+            "db": {
+                "kind": "hana-cloud"
+            },
+            "auth": "xsuaa"
+        }
+    },
+    "devDependencies": {
+        "@sap/ux-specification": "^1.108.11",
+        "rimraf": "^3.0.2"
+    }
+}
