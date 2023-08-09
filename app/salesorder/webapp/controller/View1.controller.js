@@ -480,9 +480,12 @@ sap.ui.define(
             OBJ: JSON.stringify(allOrders)
           },
           success: function (data) {
-            sap.m.MessageToast.show("Create Done");
+            //sap.m.MessageToast.show("Create Done");
             that.reset();
-            that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder) }));
+            that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
+            if(JSON.parse(data.excelorder)[1].length !==0 ){
+              sap.m.MessageToast.show(...JSON.parse(data.excelorder)[1]);
+            }
           },
           error: function (error) {
             console.log(error);

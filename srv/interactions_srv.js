@@ -124,6 +124,7 @@ module.exports = (srv) => {
     if (req.data.FLAG === "C") {
       try {
         const returnsData = [];
+        const invalidReturnsData = [];
         const UNIQUE_ID_HEADER = await cds.run(SELECT.from("CP_UNIQUE_ID_HEADER"));
         var CP_SEED_ORDER = await cds.run(SELECT.from("CP_SEED_ORDER"));
         const CP_SEED_ORDER_ID = [];
@@ -151,9 +152,11 @@ module.exports = (srv) => {
             returnsData.push(ORDER)
             await cds.run(
               INSERT.into("CP_SEED_ORDER").entries(ORDER))
+          }else{ 
+            invalidReturnsData.push(obj.PRODUCT + " WITH " +obj.UNIQUE_ID + " IS NOT AVAILABEL")
           }
         }
-        return JSON.stringify(returnsData);
+        return JSON.stringify([returnsData,invalidReturnsData]);
       } catch (e) {
         throw e;
       }
