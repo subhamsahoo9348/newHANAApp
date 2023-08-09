@@ -401,7 +401,7 @@ sap.ui.define(
         });
       },
       upload: function (oEvent) {
-        that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: [] }));
+        //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: [] }));
         var excelData = {};
         var file = this.byId("fileUpload").oFileUpload.files[0];
         if (!file) {
@@ -482,10 +482,10 @@ sap.ui.define(
           success: function (data) {
             //sap.m.MessageToast.show("Create Done");
             const message = [];
-            const errorMessage = [];
+           // const errorMessage = [];
             var msg1, msg2,finalMessage="";
-            that.reset();
-            that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
+            //that.reset();
+            //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
             // if(JSON.parse(data.excelorder)[0].length !== 0 && JSON.parse(data.excelorder)[1].length !== 0){
 
             // }

@@ -99,7 +99,8 @@ module.exports = (srv) => {
         const lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1].split('SE000')[1]);
         const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === req.data.PRODUCT && i.UNIQUE_ID == req.data.UNIQUE_ID);
         var orderId = undefined;
-        if (find) {
+        const findDate = CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === req.data.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == req.data.UNIQUE_ID)
+        if (find && !findDate) {
           orderId = "SE000" + (lastCount + 1);
           const mail = req.headers["x-username"];
           await cds.run(
@@ -137,7 +138,11 @@ module.exports = (srv) => {
         for (let i = 0; i < data.length; i++) {
           var obj = data[i];
           const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === obj.PRODUCT && i.UNIQUE_ID == obj.UNIQUE_ID);
-          if (find) {
+          const findDate = CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === obj.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == obj.UNIQUE_ID)
+          if (find && !findDate) {
+            // if (CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === obj.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == obj.UNIQUE_ID)) {
+            //   await cds.run(DELETE.from("CP_SEED_ORDER").where({ MATERIAL_AVAIL_DATE: obj.MATERIAL_AVAIL_DATE, UNIQUE_ID: obj.UNIQUE_ID }))
+            // }
             var orderId = "SE000" + (id + count);
             count = count + 1;
             const ORDER = {
