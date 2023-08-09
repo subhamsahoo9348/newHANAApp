@@ -152,11 +152,12 @@ module.exports = (srv) => {
             returnsData.push(ORDER)
             await cds.run(
               INSERT.into("CP_SEED_ORDER").entries(ORDER))
-          }else{ 
-            invalidReturnsData.push(obj.PRODUCT + " WITH " +obj.UNIQUE_ID + " IS NOT AVAILABEL")
+          } else {
+            if (!invalidReturnsData.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID})`))
+              invalidReturnsData.push(`(${obj.PRODUCT},${obj.UNIQUE_ID})`);
           }
         }
-        return JSON.stringify([returnsData,invalidReturnsData]);
+        return JSON.stringify([returnsData, invalidReturnsData]);
       } catch (e) {
         throw e;
       }

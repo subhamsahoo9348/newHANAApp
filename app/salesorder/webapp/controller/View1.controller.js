@@ -310,7 +310,7 @@ sap.ui.define(
           .getSelectedItem()
           .getBindingContext()
           .getObject();
-          that.getOwnerComponent().getModel("OBJ").setProperty("/", obj);
+        that.getOwnerComponent().getModel("OBJ").setProperty("/", obj);
       },
       onCloseOrder: function () {
         that.byId("orderProduct").setValueState(sap.ui.core.ValueState.None);
@@ -481,10 +481,21 @@ sap.ui.define(
           },
           success: function (data) {
             //sap.m.MessageToast.show("Create Done");
+            const message = [];
+            const errorMessage = [];
             that.reset();
             that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
-            if(JSON.parse(data.excelorder)[1].length !==0 ){
-              sap.m.MessageToast.show(...JSON.parse(data.excelorder)[1]);
+            if (JSON.parse(data.excelorder)[0].length !== 0) {
+              JSON.parse(data.excelorder)[0].forEach(
+                item => {
+                  if (!message.includes(item.UNIQUE_ID))
+                    message.push(item.UNIQUE_ID);
+                }
+              )
+              sap.m.MessageToast.show("FOR ID" + message.join(',') + " CREATE DONE");
+            }
+            if (JSON.parse(data.excelorder)[1].length !== 0) {
+              sap.m.MessageToast.show("FOR" + JSON.parse(data.excelorder)[1].join(',') + " DATA NOT AVAILABEL");
             }
           },
           error: function (error) {
