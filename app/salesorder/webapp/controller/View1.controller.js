@@ -483,8 +483,12 @@ sap.ui.define(
             //sap.m.MessageToast.show("Create Done");
             const message = [];
             const errorMessage = [];
+            var msg1, msg2,finalMessage="";
             that.reset();
             that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
+            // if(JSON.parse(data.excelorder)[0].length !== 0 && JSON.parse(data.excelorder)[1].length !== 0){
+
+            // }
             if (JSON.parse(data.excelorder)[0].length !== 0) {
               JSON.parse(data.excelorder)[0].forEach(
                 item => {
@@ -492,11 +496,14 @@ sap.ui.define(
                     message.push(item.UNIQUE_ID);
                 }
               )
-              sap.m.MessageToast.show("FOR ID" + message.join(',') + " CREATE DONE");
+              msg1 = "FOR ID" + message.join(',') + " CREATE DONE.";
+              finalMessage = finalMessage+msg1
             }
             if (JSON.parse(data.excelorder)[1].length !== 0) {
-              sap.m.MessageToast.show("FOR" + JSON.parse(data.excelorder)[1].join(',') + " DATA NOT AVAILABEL");
+              msg2 = "FOR" + JSON.parse(data.excelorder)[1].join(',') + " DATA NOT AVAILABEL.";
+              finalMessage = finalMessage+ "    " + msg2
             }
+            sap.m.MessageToast.show(finalMessage)
           },
           error: function (error) {
             console.log(error);
