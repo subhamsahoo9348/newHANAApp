@@ -482,11 +482,11 @@ sap.ui.define(
             FLAG: "C",
             OBJ: JSON.stringify(allOrders)
           },
-          success: function (data) {
+          success: async function (data) {
             //sap.m.MessageToast.show("Create Done");
             const message = [];
-           // const errorMessage = [];
-            var msg1, msg2,finalMessage="";
+            // const errorMessage = [];
+            var msg1, msg2, finalMessage = "";
             //that.reset();
             //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
             // if(JSON.parse(data.excelorder)[0].length !== 0 && JSON.parse(data.excelorder)[1].length !== 0){
@@ -500,13 +500,16 @@ sap.ui.define(
                 }
               )
               msg1 = "FOR ID " + message.join(',') + " CREATE DONE.";
-              finalMessage = finalMessage+msg1
+              //finalMessage = finalMessage+msg1
             }
             if (JSON.parse(data.excelorder)[1].length !== 0) {
-              msg2 = "FOR" + JSON.parse(data.excelorder)[1].join(',') + " DATA NOT AVAILABEL.";
-              finalMessage = finalMessage+ "\n" + msg2
+              msg2 = "FOR " + JSON.parse(data.excelorder)[1].join(', ') + " DATA NOT AVAILABEL.";
+              //finalMessage = finalMessage+ "\n" + msg2
             }
-            sap.m.MessageToast.show(finalMessage)
+            sap.m.MessageToast.show(msg1 ? msg1 : msg2);
+            if (msg2) setTimeout(() => {
+              sap.m.MessageToast.show(msg2);
+            }, 3000)
           },
           error: function (error) {
             console.log(error);
