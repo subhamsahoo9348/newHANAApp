@@ -128,7 +128,8 @@ module.exports = (srv) => {
     if (req.data.FLAG === "C") {
       try {
         const returnsData = [];
-        const invalidReturnsData = [];
+        const invalidReturnsData1 = [];
+        const invalidReturnsData2 = [];
         const UNIQUE_ID_HEADER = await cds.run(SELECT.from("CP_UNIQUE_ID_HEADER"));
         var CP_SEED_ORDER = await cds.run(SELECT.from("CP_SEED_ORDER"));
         const CP_SEED_ORDER_ID = [];
@@ -164,17 +165,17 @@ module.exports = (srv) => {
             await cds.run(
               INSERT.into("CP_SEED_ORDER").entries(ORDER))
           } else {
-            if (!invalidReturnsData.find(item => { item.startsWith(`(${obj.PRODUCT},${obj.UNIQUE_ID}`) })) {
-              if (!findDate) {
-                invalidReturnsData.push(`(${obj.PRODUCT},${obj.UNIQUE_ID},${obj.MATERIAL_AVAIL_DATE})`);
+            //if (!invalidReturnsData1.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID}`) || !invalidReturnsData2.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID},${obj.MATERIAL_AVAIL_DATE})`)) {
+              if (!find) {
+                invalidReturnsData1.push(`(${obj.PRODUCT},${obj.UNIQUE_ID})`);
               }
-              else {
-                invalidReturnsData.push(`(${obj.PRODUCT},${obj.UNIQUE_ID})`);
+              else if (find) {
+                invalidReturnsData2.push(`(${obj.PRODUCT},${obj.UNIQUE_ID},${obj.MATERIAL_AVAIL_DATE})`);
               }
-            }
+            //}
           }
         }
-        return JSON.stringify([returnsData, invalidReturnsData]);
+        return JSON.stringify([returnsData, [...invalidReturnsData1, ...invalidReturnsData2]]);
       } catch (e) {
         throw e;
       }

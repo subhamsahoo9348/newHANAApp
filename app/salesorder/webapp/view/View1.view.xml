@@ -118,7 +118,6 @@
                         id="table"
                         mode="SingleSelectMaster"
                         items="{path:'/salesOrder',sorter:{path:'UNIQUE_ID'}}"
-                        selectionChange="onselect"
                     >
                         <m:headerToolbar>
                             <m:OverflowToolbar class="toolBar">
