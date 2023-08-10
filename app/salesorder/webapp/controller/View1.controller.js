@@ -38,19 +38,22 @@ sap.ui.define(
         if (!product) {
           return sap.m.MessageToast.show("Select a PRODUCT");
         }
+        if (!uniqueId) {
+          return sap.m.MessageToast.show("Select a ID");
+        }
         const oTable = that.byId("table");
         const oModel = that.getOwnerComponent().getModel();
         oModel.read("/SEED_ORDER", {
           success: function (data) {
             let items = data.results;
             items = data.results.filter((obj) => {
-              return obj.PRODUCT === product;
+              return (obj.PRODUCT === product) && (obj.UNIQUE_ID === uniqueId);
             });
-            if (uniqueId) {
-              items = items.filter((obj) => {
-                return obj.UNIQUE_ID === uniqueId;
-              });
-            }
+            // if (uniqueId) {
+            //   items = items.filter((obj) => {
+            //     return obj.UNIQUE_ID === uniqueId;
+            //   });
+            // }
             if (from && to) {
               items = items.filter((obj) => {
                 return (

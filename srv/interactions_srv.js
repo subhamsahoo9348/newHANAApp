@@ -97,6 +97,9 @@ module.exports = (srv) => {
         const CP_SEED_ORDER_ID = [];
         CP_SEED_ORDER.forEach(obj => { CP_SEED_ORDER_ID.push(obj.SEEDORDER) });
         const lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1].split('SE000')[1]);
+        if(!lastCount){
+          lastCount = 1
+        }
         const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === req.data.PRODUCT && i.UNIQUE_ID == req.data.UNIQUE_ID);
         var orderId = undefined;
         const findDate = CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === req.data.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == req.data.UNIQUE_ID)
