@@ -499,17 +499,18 @@ sap.ui.define(
                     message.push(item.UNIQUE_ID);
                 }
               )
-              msg1 = "FOR ID " + message.join(',') + " CREATE DONE.";
+              msg1 = message.join(',') + " CREATED.";
               //finalMessage = finalMessage+msg1
             }
             if (JSON.parse(data.excelorder)[1].length !== 0) {
-              msg2 = "FOR " + JSON.parse(data.excelorder)[1].join(', ') + " DATA NOT AVAILABEL.";
+              msg2 = JSON.parse(data.excelorder)[1].join(', ') + " NOT AVAILABEL.";
               //finalMessage = finalMessage+ "\n" + msg2
             }
-            sap.m.MessageToast.show(msg1 ? msg1 : msg2);
-            if (msg2) setTimeout(() => {
-              sap.m.MessageToast.show(msg2);
-            }, 3000)
+            if (msg1) sap.m.MessageToast.show(msg1, { duration: 2000 });
+            else sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+            if (msg1) setTimeout(() => {
+              sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+            }, 2000)
           },
           error: function (error) {
             console.log(error);
