@@ -96,15 +96,15 @@ module.exports = (srv) => {
         const CP_SEED_ORDER = await cds.run(SELECT.from("CP_SEED_ORDER"));
         const CP_SEED_ORDER_ID = [];
         CP_SEED_ORDER.forEach(obj => { CP_SEED_ORDER_ID.push(obj.SEEDORDER) });
-        const lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1].split('SE000')[1]);
+        let lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1]?.split('SE000')[1]);
         if(!lastCount){
-          lastCount = 1
+          lastCount = 0
         }
         const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === req.data.PRODUCT && i.UNIQUE_ID == req.data.UNIQUE_ID);
         var orderId = undefined;
         const findDate = CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === req.data.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == req.data.UNIQUE_ID)
         if (find && !findDate) {
-          orderId = "SE000" + (lastCount + 1);
+          orderId = "SE000" + (lastCount+1);
           const mail = req.headers["x-username"];
           await cds.run(
             INSERT.into("CP_SEED_ORDER").entries({
@@ -133,7 +133,10 @@ module.exports = (srv) => {
         var CP_SEED_ORDER = await cds.run(SELECT.from("CP_SEED_ORDER"));
         const CP_SEED_ORDER_ID = [];
         CP_SEED_ORDER.forEach(obj => { CP_SEED_ORDER_ID.push(obj.SEEDORDER) });
-        const lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1].split('SE000')[1]);
+        let lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1]?.split('SE000')[1]);
+        if(!lastCount){
+          lastCount = 0
+        }
         var id = (lastCount + 1);
         var count = 0;
         var data = JSON.parse(req.data.OBJ);
