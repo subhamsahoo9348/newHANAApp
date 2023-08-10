@@ -499,7 +499,7 @@ sap.ui.define(
                     message.push(item.UNIQUE_ID);
                 }
               )
-              msg1 = "FOR ID" + message.join(',') + " CREATE DONE.";
+              msg1 = "FOR ID " + message.join(',') + " CREATE DONE.";
               finalMessage = finalMessage+msg1
             }
             if (JSON.parse(data.excelorder)[1].length !== 0) {
