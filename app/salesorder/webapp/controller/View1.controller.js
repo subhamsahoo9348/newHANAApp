@@ -504,7 +504,7 @@ sap.ui.define(
             }
             if (JSON.parse(data.excelorder)[1].length !== 0) {
               msg2 = "FOR" + JSON.parse(data.excelorder)[1].join(',') + " DATA NOT AVAILABEL.";
-              finalMessage = finalMessage+ "    " + msg2
+              finalMessage = finalMessage+ "\n" + msg2
             }
             sap.m.MessageToast.show(finalMessage)
           },
