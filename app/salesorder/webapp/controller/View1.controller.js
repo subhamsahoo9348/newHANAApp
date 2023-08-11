@@ -240,23 +240,15 @@ sap.ui.define(
         }
         that.byId("orderProduct").setValueState(sap.ui.core.ValueState.Success);
         if (!UNIQUE_ID) {
-          that
-            .byId("uniqueIDOrder")
-            .setValueState(sap.ui.core.ValueState.Error);
+          that.byId("uniqueIDOrder").setValueState(sap.ui.core.ValueState.Error);
           return sap.m.MessageToast.show("GIVE A VALID UNIQUE_ID");
         }
-        that
-          .byId("uniqueIDOrder")
-          .setValueState(sap.ui.core.ValueState.Success);
+        that.byId("uniqueIDOrder").setValueState(sap.ui.core.ValueState.Success);
         if (!ORDER_QUANTITY || ORDER_QUANTITY === 0) {
-          that
-            .byId("orderQuantity")
-            .setValueState(sap.ui.core.ValueState.Error);
+          that.byId("orderQuantity").setValueState(sap.ui.core.ValueState.Error);
           return sap.m.MessageToast.show("GIVE A VALID ORDER_QUANTITY");
         }
-        that
-          .byId("orderQuantity")
-          .setValueState(sap.ui.core.ValueState.Success);
+        that.byId("orderQuantity").setValueState(sap.ui.core.ValueState.Success);
         if (!new Date(MATERIAL_AVAIL_DATE).getDay()) {
           that.byId("materialDate").setValueState(sap.ui.core.ValueState.Error);
           return sap.m.MessageToast.show("GIVE A VALID MATERIAL_AVAIL_DATE");
@@ -274,20 +266,18 @@ sap.ui.define(
             CREATED_BY: "",
           },
           success: function (message) {
-            that.byId("input").setValue(PRODUCT);
-            that.byId("uniqueIDinput").setValue(UNIQUE_ID);
-            that
-              .byId("date")
-              .setFrom(new Date(new Date().setHours(0, 0, 0, 0)));
-            that
-              .byId("date")
-              .setTo(new Date(new Date().setHours(23, 59, 59, 59)));
-            that.go();
-            if (message.order === "INVALID ENTRY") {
+            if (!message.order.startsWith("SE000")) {
+              if (message.order.includes("ON")) that.byId("materialDate").setValueState(sap.ui.core.ValueState.Error);
+              else that.byId("uniqueIDOrder").setValueState(sap.ui.core.ValueState.Error);
               sap.m.MessageToast.show(
-                "THE PRODUCT OR UNIQUE_ID IS NOT AVAILABEL"
+                message.order
               );
             } else {
+              that.byId("input").setValue(PRODUCT);
+              that.byId("uniqueIDinput").setValue(UNIQUE_ID);
+              that.byId("date").setFrom(new Date(new Date().setHours(0, 0, 0, 0)));
+              that.byId("date").setTo(new Date(new Date().setHours(23, 59, 59, 59)));
+              that.go();
               sap.m.MessageToast.show(
                 `${message.order} HAS BEEN CREATED SUCCESSFULLY`
               );

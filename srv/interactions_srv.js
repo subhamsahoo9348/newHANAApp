@@ -118,7 +118,7 @@ module.exports = (srv) => {
             })
           );
         }
-        return orderId ? orderId : "INVALID ENTRY";
+        return orderId ? orderId : (find&&findDate)?`${req.data.PRODUCT} with ID ${req.data.UNIQUE_ID} NOT AVAIL ON ${req.data.MATERIAL_AVAIL_DATE}`:`${req.data.PRODUCT} with ID ${req.data.UNIQUE_ID} NOT AVAIL`;
       } catch (e) {
         throw e;
       }
