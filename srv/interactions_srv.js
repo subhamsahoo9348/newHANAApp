@@ -118,7 +118,9 @@ module.exports = (srv) => {
             })
           );
         }
-        return orderId ? orderId : (find&&findDate)?`${req.data.PRODUCT} with ID ${req.data.UNIQUE_ID} NOT AVAIL ON ${req.data.MATERIAL_AVAIL_DATE}`:`${req.data.PRODUCT} with ID ${req.data.UNIQUE_ID} NOT AVAIL`;
+        return orderId ? orderId : (find && findDate) ?
+          `${req.data.PRODUCT} WITH ID ${req.data.UNIQUE_ID} ALREADY EXIST ON ${req.data.MATERIAL_AVAIL_DATE}` :
+          `${req.data.PRODUCT} WITH ID${req.data.UNIQUE_ID} DOES NOT EXIST`;
       } catch (e) {
         throw e;
       }
@@ -166,12 +168,12 @@ module.exports = (srv) => {
               INSERT.into("CP_SEED_ORDER").entries(ORDER))
           } else {
             //if (!invalidReturnsData1.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID}`) || !invalidReturnsData2.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID},${obj.MATERIAL_AVAIL_DATE})`)) {
-              if (!find) {
-                invalidReturnsData1.push(`(${obj.PRODUCT},${obj.UNIQUE_ID})`);
-              }
-              else if (find) {
-                invalidReturnsData2.push(`(${obj.PRODUCT},${obj.UNIQUE_ID},${obj.MATERIAL_AVAIL_DATE})`);
-              }
+            if (!find) {
+              invalidReturnsData1.push(`${obj.PRODUCT} WITH ID ${obj.UNIQUE_ID} DOES NOT EXIST`);
+            }
+            else if (find) {
+              invalidReturnsData2.push(`${obj.PRODUCT} WITH ID ${obj.UNIQUE_ID} ALREADY EXIST ON ${obj.MATERIAL_AVAIL_DATE}`);
+            }
             //}
           }
         }

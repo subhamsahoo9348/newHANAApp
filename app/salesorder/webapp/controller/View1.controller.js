@@ -9,7 +9,7 @@ sap.ui.define(
   function (Controller, Spreadsheet) {
     "use strict";
 
-    var that, UNIQUE_ID_HEADER;
+    var that;
     return Controller.extend("salesorder.controller.View1", {
       onInit: function () {
         that = this;
@@ -494,7 +494,7 @@ sap.ui.define(
               //finalMessage = finalMessage+msg1
             }
             if (JSON.parse(data.excelorder)[1].length !== 0) {
-              msg2 = [...new Set(JSON.parse(data.excelorder)[1])].join(', ') + " NOT AVAILABEL.";
+              msg2 = [...new Set(JSON.parse(data.excelorder)[1])].join(', ');
               //finalMessage = finalMessage+ "\n" + msg2
             }
             if (msg1) {
