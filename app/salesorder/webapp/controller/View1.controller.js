@@ -506,11 +506,18 @@ sap.ui.define(
               msg2 = [...new Set(JSON.parse(data.excelorder)[1])].join(', ') + " NOT AVAILABEL.";
               //finalMessage = finalMessage+ "\n" + msg2
             }
-            if (msg1) sap.m.MessageToast.show(msg1, { duration: 2000 });
-            if (!msg1 && msg2) sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-            if (msg1) setTimeout(() => {
+            if (msg1) {
+              sap.m.MessageToast.show(msg1, { duration: 2000 });
+              if (msg2) setTimeout(() => {
+                sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+              }, 2000)
+            }else{
               sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-            }, 2000)
+            }
+            // if (!msg1 && msg2) sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+            // if (msg1) setTimeout(() => {
+            //   sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+            // }, 2000)
           },
           error: function (error) {
             console.log(error);
