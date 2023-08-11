@@ -145,7 +145,7 @@ module.exports = (srv) => {
         for (let i = 0; i < data.length; i++) {
           var obj = data[i];
           const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === obj.PRODUCT && i.UNIQUE_ID == obj.UNIQUE_ID);
-          const findDate = CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === obj.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == obj.UNIQUE_ID)
+          const findDate = CP_SEED_ORDER.find(i => new Date(i.MATERIAL_AVAIL_DATE).getTime() === new Date(obj.MATERIAL_AVAIL_DATE).getTime() && i.UNIQUE_ID == obj.UNIQUE_ID)
           if (find && !findDate) {
             // if (CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === obj.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == obj.UNIQUE_ID)) {
             //   await cds.run(DELETE.from("CP_SEED_ORDER").where({ MATERIAL_AVAIL_DATE: obj.MATERIAL_AVAIL_DATE, UNIQUE_ID: obj.UNIQUE_ID }))
