@@ -511,7 +511,7 @@ sap.ui.define(
               if (msg2) setTimeout(() => {
                 sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
               }, 2000)
-            }else{
+            } else {
               sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
             }
             // if (!msg1 && msg2) sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
