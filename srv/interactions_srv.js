@@ -102,7 +102,7 @@ module.exports = (srv) => {
         }
         const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === req.data.PRODUCT && i.UNIQUE_ID == req.data.UNIQUE_ID);
         var orderId = undefined;
-        const findDate = CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === req.data.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == req.data.UNIQUE_ID)
+        const findDate = CP_SEED_ORDER.find(i => new Date(i.MATERIAL_AVAIL_DATE).getTime() === new Date(req.data.MATERIAL_AVAIL_DATE).getTime() && i.UNIQUE_ID == req.data.UNIQUE_ID)
         if (find && !findDate) {
           orderId = "SE000" + (lastCount + 1);
           const mail = req.headers["x-username"];
