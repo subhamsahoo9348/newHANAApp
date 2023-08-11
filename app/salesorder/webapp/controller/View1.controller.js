@@ -400,6 +400,7 @@ sap.ui.define(
         if (!file) {
           return sap.m.MessageToast.show("SELECT A EXCEL FILE");
         }
+        this.byId("fileUpload").setValue("");
         var reader = new FileReader();
         reader.onload = function (e) {
           var data = e.target.result;
