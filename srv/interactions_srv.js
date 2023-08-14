@@ -120,7 +120,7 @@ module.exports = (srv) => {
         }
         return orderId ? orderId : (find && findDate) ?
           `${req.data.PRODUCT} WITH ID ${req.data.UNIQUE_ID} ALREADY EXIST ON ${req.data.MATERIAL_AVAIL_DATE}` :
-          `${req.data.PRODUCT} WITH ID${req.data.UNIQUE_ID} DOES NOT EXIST`;
+          `${req.data.PRODUCT} WITH ID ${req.data.UNIQUE_ID} DOES NOT EXIST`;
       } catch (e) {
         throw e;
       }
