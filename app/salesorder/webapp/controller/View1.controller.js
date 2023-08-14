@@ -268,7 +268,10 @@ sap.ui.define(
           success: function (message) {
             if (!message.order.startsWith("SE000")) {
               if (message.order.includes("ON")) that.byId("materialDate").setValueState(sap.ui.core.ValueState.Error);
-              else that.byId("uniqueIDOrder").setValueState(sap.ui.core.ValueState.Error);
+              else {
+                that.byId("uniqueIDOrder").setValueState(sap.ui.core.ValueState.Error);
+                that.byId("orderProduct").setValueState(sap.ui.core.ValueState.Error);
+              }
               sap.m.MessageToast.show(
                 message.order
               );
