@@ -421,9 +421,13 @@ sap.ui.define(
         var aCols = [];
         var noOfColumn = list.length;
         for (let i = 0; i < noOfColumn; i++) {
-          aCols.push({
+          const temp = {
             property: list[i],//property: list[i].split(' ').join('_')
-          });
+          }
+          if (list[i] != "PRODUCT") {
+            temp.type = sap.ui.export.EdmType.Number
+          }
+          aCols.push(temp);
         }
         return aCols;
       },
