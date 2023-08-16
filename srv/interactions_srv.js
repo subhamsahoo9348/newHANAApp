@@ -1,4 +1,5 @@
 const cds = require("@sap/cds");
+const fs = require("fs");
 module.exports = (srv) => {
   srv.on("crud", async (req) => {
     if (req.data.FLAG === "C") {
@@ -183,5 +184,20 @@ module.exports = (srv) => {
       }
     }
   });
+  srv.on("crudJSON", async (req) => {
+    if (req.data.FLAG === "C") {
+      try {
+        let data;
+        fetch('./db/header.json')
+          .then(response => { response.json() })
+        then(json => { data = json });
+        const jsonString = JSON.stringify({ "TRAIL": 1 }, null, 2);
+        fs.writeFileSync('./db/header.json', jsonString, { encoding: 'utf-8', flag: 'w' });
+      }
+      catch (e) {
+        throw e;
+      }
+    }
+  })
 
 };

@@ -63,6 +63,10 @@ modules:
       - headeritem.zip
       name: headeritem
       target-path: resources/
+    - artifacts:
+      - jsonread.zip
+      name: jsonread
+      target-path: resources/
 - name: salesorder
   type: html5
   path: app/salesorder
@@ -76,6 +80,16 @@ modules:
 - name: headeritem
   type: html5
   path: app/headeritem
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: jsonread
+  type: html5
+  path: app/jsonread
   build-parameters:
     build-result: dist
     builder: custom
