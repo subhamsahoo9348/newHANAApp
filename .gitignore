@@ -34,4 +34,4 @@ mta_archives/
 db/.env
 
 #app
-jsonread/
+#jsonread/

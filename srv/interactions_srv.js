@@ -191,8 +191,13 @@ module.exports = (srv) => {
         fetch('./db/header.json')
           .then(response => { response.json() })
         then(json => { data = json });
+        data.forEach(obj => {
+          if (obj.PAGEID === 1) {
+            obj.DESCRIPTION = "SOMETHING"
+          }
+        })
         const jsonString = JSON.stringify({ "TRAIL": 1 }, null, 2);
-        fs.writeFileSync('./db/header.json', jsonString, { encoding: 'utf-8', flag: 'w' });
+        fs.writeFileSync('./db/header1.json', jsonString, { encoding: 'utf-8', flag: 'w' });
       }
       catch (e) {
         throw e;
