@@ -197,7 +197,7 @@ module.exports = (srv) => {
           }
         })
         const jsonString = JSON.stringify({ "TRAIL": 1 }, null, 2);
-        fs.writeFileSync('./db/header1.json', jsonString, { encoding: 'utf-8', flag: 'w' });
+        fs.writeFile('./db/header1.json', jsonString, { encoding: 'utf-8', flag: 'w' });
       }
       catch (e) {
         throw e;
