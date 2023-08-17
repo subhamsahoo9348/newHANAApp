@@ -78,7 +78,11 @@
           "autoExpandSelect": true,
           "earlyRequests": true
         }
-      }
+      },
+      "header": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "./model/header.json"
+    }
     },
     "resources": {
       "css": [

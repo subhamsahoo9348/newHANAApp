@@ -16,6 +16,7 @@ sap.ui.define(
                 that.updateDialog = that.loadFragment({
                     name: "jsonread.view.update",
                 });
+                debugger
                 const oModel = that.getOwnerComponent().getModel();
                 oModel.callFunction("/crudJSON", {
                     method: "GET",
@@ -25,10 +26,8 @@ sap.ui.define(
                     },
                     success: function (message) {
                         header = JSON.parse(message.crudJSON);
-                        h= header;
-                        that
-                            .byId("table")
-                            .setModel(new sap.ui.model.json.JSONModel({ item: header }));
+                        //h= header;
+                        that.byId("table").setModel(new sap.ui.model.json.JSONModel({ item: header }));
                     },
                     error: function (error) {
                         console.log(error);
@@ -69,7 +68,7 @@ sap.ui.define(
                     DESCRIPTION: desc,
                 });
                 that.byId("table").setModel(new sap.ui.model.json.JSONModel({ item: header }));
-                h = header;
+                //h = header;
                 that.onClose();
                 //sap.ui.core.util.File.save(JSON.stringify(header),"jsonread.data.header")
             },
@@ -92,4 +91,3 @@ sap.ui.define(
     }
 );
 
-module.exports = h;

@@ -1,5 +1,4 @@
-const updateJson = require('./controller/View1.controller.js');
-let json = [
+[
     {
         "PAGEID": 1,
         "DESCRIPTION": "About Variant Configuration Planner",
@@ -361,7 +360,3 @@ let json = [
         }
     }
 ]
-
-if(updateJson) json = updateJson;
-
-module.exports = json;
