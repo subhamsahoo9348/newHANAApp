@@ -1,5 +1,7 @@
 const cds = require("@sap/cds");
+const Axois = require("axios");
 const fs = require("fs");
+const jsonfile = require("jsonfile");
 module.exports = (srv) => {
   srv.on("crud", async (req) => {
     if (req.data.FLAG === "C") {
@@ -93,17 +95,32 @@ module.exports = (srv) => {
   srv.on("order", async (req) => {
     if (req.data.FLAG === "C") {
       try {
-        const UNIQUE_ID_HEADER = await cds.run(SELECT.from("CP_UNIQUE_ID_HEADER"));
+        const UNIQUE_ID_HEADER = await cds.run(
+          SELECT.from("CP_UNIQUE_ID_HEADER")
+        );
         const CP_SEED_ORDER = await cds.run(SELECT.from("CP_SEED_ORDER"));
         const CP_SEED_ORDER_ID = [];
-        CP_SEED_ORDER.forEach(obj => { CP_SEED_ORDER_ID.push(obj.SEEDORDER) });
-        let lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1]?.split('SE000')[1]);
+        CP_SEED_ORDER.forEach((obj) => {
+          CP_SEED_ORDER_ID.push(obj.SEEDORDER);
+        });
+        let lastCount = Number(
+          CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1]?.split("SE000")[1]
+        );
         if (!lastCount) {
-          lastCount = 0
+          lastCount = 0;
         }
-        const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === req.data.PRODUCT && i.UNIQUE_ID == req.data.UNIQUE_ID);
+        const find = UNIQUE_ID_HEADER.find(
+          (i) =>
+            i.PRODUCT_ID === req.data.PRODUCT &&
+            i.UNIQUE_ID == req.data.UNIQUE_ID
+        );
         var orderId = undefined;
-        const findDate = CP_SEED_ORDER.find(i => new Date(i.MATERIAL_AVAIL_DATE).getTime() === new Date(req.data.MATERIAL_AVAIL_DATE).getTime() && i.UNIQUE_ID == req.data.UNIQUE_ID)
+        const findDate = CP_SEED_ORDER.find(
+          (i) =>
+            new Date(i.MATERIAL_AVAIL_DATE).getTime() ===
+            new Date(req.data.MATERIAL_AVAIL_DATE).getTime() &&
+            i.UNIQUE_ID == req.data.UNIQUE_ID
+        );
         if (find && !findDate) {
           orderId = "SE000" + (lastCount + 1);
           const mail = req.headers["x-username"];
@@ -119,9 +136,11 @@ module.exports = (srv) => {
             })
           );
         }
-        return orderId ? orderId : (find && findDate) ?
-          `${req.data.PRODUCT} WITH ID ${req.data.UNIQUE_ID} ALREADY EXIST ON ${req.data.MATERIAL_AVAIL_DATE}` :
-          `${req.data.PRODUCT} WITH ID${req.data.UNIQUE_ID} DOES NOT EXIST`;
+        return orderId
+          ? orderId
+          : find && findDate
+            ? `${req.data.PRODUCT} WITH ID ${req.data.UNIQUE_ID} ALREADY EXIST ON ${req.data.MATERIAL_AVAIL_DATE}`
+            : `${req.data.PRODUCT} WITH ID${req.data.UNIQUE_ID} DOES NOT EXIST`;
       } catch (e) {
         throw e;
       }
@@ -133,22 +152,35 @@ module.exports = (srv) => {
         const returnsData = [];
         const invalidReturnsData1 = [];
         const invalidReturnsData2 = [];
-        const UNIQUE_ID_HEADER = await cds.run(SELECT.from("CP_UNIQUE_ID_HEADER"));
+        const UNIQUE_ID_HEADER = await cds.run(
+          SELECT.from("CP_UNIQUE_ID_HEADER")
+        );
         var CP_SEED_ORDER = await cds.run(SELECT.from("CP_SEED_ORDER"));
         const CP_SEED_ORDER_ID = [];
-        CP_SEED_ORDER.forEach(obj => { CP_SEED_ORDER_ID.push(obj.SEEDORDER) });
-        let lastCount = Number(CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1]?.split('SE000')[1]);
+        CP_SEED_ORDER.forEach((obj) => {
+          CP_SEED_ORDER_ID.push(obj.SEEDORDER);
+        });
+        let lastCount = Number(
+          CP_SEED_ORDER_ID[CP_SEED_ORDER_ID.length - 1]?.split("SE000")[1]
+        );
         if (!lastCount) {
-          lastCount = 0
+          lastCount = 0;
         }
-        var id = (lastCount + 1);
+        var id = lastCount + 1;
         var count = 0;
         var data = JSON.parse(req.data.OBJ);
         var mail = req.headers["x-username"];
         for (let i = 0; i < data.length; i++) {
           var obj = data[i];
-          const find = UNIQUE_ID_HEADER.find(i => i.PRODUCT_ID === obj.PRODUCT && i.UNIQUE_ID == obj.UNIQUE_ID);
-          const findDate = CP_SEED_ORDER.find(i => new Date(i.MATERIAL_AVAIL_DATE).getTime() === new Date(obj.MATERIAL_AVAIL_DATE).getTime() && i.UNIQUE_ID == obj.UNIQUE_ID)
+          const find = UNIQUE_ID_HEADER.find(
+            (i) => i.PRODUCT_ID === obj.PRODUCT && i.UNIQUE_ID == obj.UNIQUE_ID
+          );
+          const findDate = CP_SEED_ORDER.find(
+            (i) =>
+              new Date(i.MATERIAL_AVAIL_DATE).getTime() ===
+              new Date(obj.MATERIAL_AVAIL_DATE).getTime() &&
+              i.UNIQUE_ID == obj.UNIQUE_ID
+          );
           if (find && !findDate) {
             // if (CP_SEED_ORDER.find(i => i.MATERIAL_AVAIL_DATE === obj.MATERIAL_AVAIL_DATE && i.UNIQUE_ID == obj.UNIQUE_ID)) {
             //   await cds.run(DELETE.from("CP_SEED_ORDER").where({ MATERIAL_AVAIL_DATE: obj.MATERIAL_AVAIL_DATE, UNIQUE_ID: obj.UNIQUE_ID }))
@@ -158,27 +190,32 @@ module.exports = (srv) => {
             const ORDER = {
               SEEDORDER: orderId,
               PRODUCT: obj.PRODUCT,
-              UNIQUE_ID: obj.UNIQUE_ID + '',
+              UNIQUE_ID: obj.UNIQUE_ID + "",
               ORDER_QUANTITY: obj.ORDER_QUANTITY,
               MATERIAL_AVAIL_DATE: obj.MATERIAL_AVAIL_DATE,
               CREADTED_DATE: new Date().toLocaleDateString(),
               CREATED_BY: mail,
-            }
-            returnsData.push(ORDER)
-            await cds.run(
-              INSERT.into("CP_SEED_ORDER").entries(ORDER))
+            };
+            returnsData.push(ORDER);
+            await cds.run(INSERT.into("CP_SEED_ORDER").entries(ORDER));
           } else {
             //if (!invalidReturnsData1.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID}`) || !invalidReturnsData2.includes(`(${obj.PRODUCT},${obj.UNIQUE_ID},${obj.MATERIAL_AVAIL_DATE})`)) {
             if (!find) {
-              invalidReturnsData1.push(`${obj.PRODUCT} WITH ID ${obj.UNIQUE_ID} DOES NOT EXIST`);
-            }
-            else if (find) {
-              invalidReturnsData2.push(`${obj.PRODUCT} WITH ID ${obj.UNIQUE_ID} ALREADY EXIST ON ${obj.MATERIAL_AVAIL_DATE}`);
+              invalidReturnsData1.push(
+                `${obj.PRODUCT} WITH ID ${obj.UNIQUE_ID} DOES NOT EXIST`
+              );
+            } else if (find) {
+              invalidReturnsData2.push(
+                `${obj.PRODUCT} WITH ID ${obj.UNIQUE_ID} ALREADY EXIST ON ${obj.MATERIAL_AVAIL_DATE}`
+              );
             }
             //}
           }
         }
-        return JSON.stringify([returnsData, [...invalidReturnsData1, ...invalidReturnsData2]]);
+        return JSON.stringify([
+          returnsData,
+          [...invalidReturnsData1, ...invalidReturnsData2],
+        ]);
       } catch (e) {
         throw e;
       }
@@ -187,22 +224,54 @@ module.exports = (srv) => {
   srv.on("crudJSON", async (req) => {
     if (req.data.FLAG === "C") {
       try {
-        let data;
-        fetch('./db/header.json')
-          .then(response => { response.json() })
-        then(json => { data = json });
-        data.forEach(obj => {
-          if (obj.PAGEID === 1) {
-            obj.DESCRIPTION = "SOMETHING"
-          }
-        })
-        const jsonString = JSON.stringify({ "TRAIL": 1 }, null, 2);
-        fs.writeFile('./db/header1.json', jsonString, { encoding: 'utf-8', flag: 'w' });
+        const file = require("../db/header.json");
+        const filePath = "./db/header.json";
+        // const { Filesystem, Driver } = require('@sapphirejs/filesystem')
+        // const fs = new Filesystem(new Driver.Local())
+        // const contents = await fs.read('./db/header.json');
+        // console.log(contents);
+        // await fs.write('./db/header.json',"{'hello':10}");
+        const DATA = JSON.parse(req.data.DATA);
+        file.push(DATA);
+        jsonfile.writeFile(filePath, file, function (err) {
+          if (err) console.error(err);
+        });
+      } catch (e) {
+        throw e;
       }
-      catch (e) {
+    } else if (req.data.FLAG === "GET") {
+      try {
+        const file = require("../db/header.json");
+        return JSON.stringify(file);
+      } catch (e) {
+        throw e;
+      }
+    } else if (req.data.FLAG === "U") {
+      try {
+        const file = require("../db/header.json");
+        const filePath = "./db/header.json";
+        const DATA = JSON.parse(req.data.DATA);
+        file.forEach((obj, index) => {
+          if (obj.PAGEID === DATA.PAGEID) file[index].DESCRIPTION = DATA.DESCRIPTION;
+        })
+        jsonfile.writeFile(filePath, file, function (err) {
+          if (err) console.error(err);
+        });
+      } catch (e) {
+        throw e;
+      }
+    }else if (req.data.FLAG === "D") {
+      try {
+        let file = require("../db/header.json");
+        const filePath = "./db/header.json";
+        const DATA = JSON.parse(req.data.DATA);
+        file = file.filter(obj => obj.PAGEID !== DATA.PAGEID)
+        jsonfile.writeFile(filePath, file, function (err) {
+          if (err) console.error(err);
+        });
+      } catch (e) {
         throw e;
       }
     }
-  })
-
+  });
 };

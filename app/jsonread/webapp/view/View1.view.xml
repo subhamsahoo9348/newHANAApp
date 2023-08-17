@@ -2,6 +2,31 @@
     xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
     xmlns="sap.m">
     <Page id="page" title="{i18n>title}">
-        <content />
+        <content>
+        <!-- <Button id="btn" text="PRESS" press="crud"></Button> -->
+        <Table id="table" mode="SingleSelectMaster" items = "{/item}" selectionChange="onSelect">
+        <columns>
+        <Column ><Text text="PAGEID"></Text></Column>
+        <Column ><Text text="DESCRIPTION"></Text></Column>
+        </columns>
+        <items>
+        <ColumnListItem >
+        <cells><Text text="{PAGEID}"></Text></cells>
+        <cells><Text text="{DESCRIPTION}"></Text></cells>
+        </ColumnListItem>
+        </items>
+        </Table>
+        </content>
+        <footer>
+        <OverflowToolbar >
+        <Bar >
+        <contentRight>
+        <Button text="CREATE" press="onPressCreate"></Button>
+        <Button text="UPDATE" press="onPressUpdate"></Button>
+        <Button text="DELETE" press="onPressDelete"></Button>
+        </contentRight>
+        </Bar>
+        </OverflowToolbar>
+        </footer>
     </Page>
 </mvc:View>
