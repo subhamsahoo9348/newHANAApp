@@ -272,6 +272,16 @@ module.exports = (srv) => {
       } catch (e) {
         throw e;
       }
+    }else if (req.data.FLAG === "SAVE") {
+      try {
+        const file = JSON.parse(req.data.DATA);
+        const filePath = "./db/header.json";
+        jsonfile.writeFile(filePath, file, function (err) {
+          if (err) console.error(err);
+        });
+      } catch (e) {
+        throw e;
+      }
     }
   });
 };

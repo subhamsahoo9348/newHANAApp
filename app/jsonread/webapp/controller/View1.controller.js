@@ -35,11 +35,23 @@ sap.ui.define(
                     },
                 });
             },
-
-            getData: function () {
-                that
-                    .byId("table")
-                    .setModel(new sap.ui.model.json.JSONModel({ item: header }));
+            saveData: function (flags, datas) {
+                const oModel = that.getOwnerComponent().getModel();
+                const flag = flags;
+                const data = datas;
+                oModel.callFunction("/crudJSON", {
+                    method: "GET",
+                    urlParameters: {
+                        FLAG: flag,
+                        DATA: JSON.stringify(data),
+                    },
+                    success: function (message) {
+                    },
+                    error: function (error) {
+                        console.log(error);
+                        sap.m.MessageToast.show("Failed");
+                    },
+                });
             },
             onPressCreate: function (oEvent) {
                 that.createDialog.then((dialog) => {
@@ -59,27 +71,28 @@ sap.ui.define(
                 const DATA = that.byId("table").getSelectedItem().getBindingContext().getObject();
                 header = header.filter((obj) => obj.PAGEID != DATA.PAGEID);
                 that.byId("table").setModel(new sap.ui.model.json.JSONModel({ item: header }));
+                that.saveData("SAVE",header);
             },
             onCreate: function (oEvent) {
-                const pageId = that.byId("idInput").getValue();
+                const pageId = Number(that.byId("idInput").getValue());
                 const desc = that.byId("descInput").getValue();
                 header.push({
                     PAGEID: pageId,
                     DESCRIPTION: desc,
                 });
                 that.byId("table").setModel(new sap.ui.model.json.JSONModel({ item: header }));
-                //h = header;
                 that.onClose();
-                //sap.ui.core.util.File.save(JSON.stringify(header),"jsonread.data.header")
+                that.saveData("SAVE",header);
             },
             onUpdate: function () {
-                const pageId = that.byId("uidInput").getValue();
+                const pageId = Number(that.byId("uidInput").getValue());
                 const desc = that.byId("udescInput").getValue();
                 header.forEach((obj, index) => {
                     if (obj.PAGEID == pageId) header[index].DESCRIPTION = desc;
                 })
                 that.byId("table").setModel(new sap.ui.model.json.JSONModel({ item: header }));
                 that.onCloseUpdate();
+                that.saveData("SAVE",header);
             },
             onClose: function () {
                 that.byId("createDialog").close();
