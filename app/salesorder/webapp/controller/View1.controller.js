@@ -9,7 +9,7 @@ sap.ui.define(
   function (Controller, Spreadsheet) {
     "use strict";
 
-    var that;
+    var that, validList = [], allDate;
     return Controller.extend("salesorder.controller.View1", {
       onInit: function () {
         that = this;
@@ -24,6 +24,9 @@ sap.ui.define(
         });
         that.datePicker = that.loadFragment({
           name: "salesorder.view.DatePicker",
+        });
+        that.errorTable = that.loadFragment({
+          name: "salesorder.view.errorTable",
         });
         that
           .byId("table")
@@ -399,6 +402,7 @@ sap.ui.define(
       upload: function (oEvent) {
         //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: [] }));
         var excelData = {};
+        validList = [];
         var file = this.byId("fileUpload").oFileUpload.files[0];
         if (!file) {
           return sap.m.MessageToast.show("SELECT A EXCEL FILE");
@@ -412,6 +416,7 @@ sap.ui.define(
           });
           workbook.SheetNames.forEach(function (sheetName) {
             excelData = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+            allDate = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName], { header: 1 })[0].filter(date => date !== "PRODUCT" && date !== "UNIQUE_ID");
             that.excelOrder(excelData);
           });
         };
@@ -431,97 +436,268 @@ sap.ui.define(
         }
         return aCols;
       },
-      excelOrder: function (catchData) {
-        const dub = [];
-        const data = [];
-        catchData.forEach(obj => {
-          if (!(dub.includes(obj.UNIQUE_ID))) {
-            data.push(obj)
-          }
-          dub.push(obj.UNIQUE_ID);
-        })
-        const allOrders = [];
-        const oModel = that.getOwnerComponent().getModel();
-        //start
-        if (data.length === 0) {
-          return sap.m.MessageToast.show("THE EXCEL IS EMPTY");
-        }
-        data.forEach(async row => {
-          var key = Object.keys(row);
-          //var dates = key.filter(item => item !== 'PRODUCT' && item !== 'UNIQUE_ID' && item.startsWith('Mon'));
-          var dates = key.filter(item => new Date(item.split('_').join('/')).getDay());
-          var PRODUCT = row.PRODUCT;
-          var UNIQUE_ID = row.UNIQUE_ID;
-          if (PRODUCT && UNIQUE_ID) {
-            dates.forEach(async date => {
-              var MATERIAL_AVAIL_DATE = new Date(date.split('_').join(' ')).toLocaleDateString();
-              var orderQuanrity = row[date];
-              if (Number(orderQuanrity)) {
-                allOrders.push(
-                  {
-                    PRODUCT: PRODUCT,
-                    UNIQUE_ID: UNIQUE_ID + '',
-                    ORDER_QUANTITY: Number(orderQuanrity),
-                    MATERIAL_AVAIL_DATE: MATERIAL_AVAIL_DATE,
-                    CREADTED_DATE: new Date().toLocaleDateString(),
-                  }
-                )
-              }
-            })
-          }
-        })
-        //end
-        if (allOrders.length === 0) {
-          return sap.m.MessageToast.show("THE EXCEL DON'T HAVE ANY VALID DATA");
-        }
-        oModel.callFunction("/excelorder", {
-          method: "GET",
-          urlParameters: {
-            FLAG: "C",
-            OBJ: JSON.stringify(allOrders)
-          },
-          success: async function (data) {
-            //sap.m.MessageToast.show("Create Done");
-            const message = [];
-            // const errorMessage = [];
-            var msg1, msg2, finalMessage = "";
-            //that.reset();
-            //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
-            // if(JSON.parse(data.excelorder)[0].length !== 0 && JSON.parse(data.excelorder)[1].length !== 0){
+      excelOrder: async function (catchData) {
+        //const wait = await that.validDataFunction(catchData)
+        //validDataFunction Start
+        let SEED_ORDER, HEADER_ITEM;
+        that.getOwnerComponent().getModel()
+          .read("/SEED_ORDER", {
+            success: function (seedorder) {
+              SEED_ORDER = seedorder.results;
+              that.getOwnerComponent().getModel()
+                .read("/UNIQUE_ID_HEADER", {
+                  success: function (headeritem) {
+                    HEADER_ITEM = headeritem.results;
+                    const allOrders = [];
+                    const dub = [];
+                    const data = [];
+                    catchData.forEach(obj => {
+                      if (!(dub.includes(obj.UNIQUE_ID))) {
+                        data.push(obj)
+                      }
+                      dub.push(obj.UNIQUE_ID);
+                    })
+                    data.forEach(async row => {
+                      var key = Object.keys(row);
+                      //var dates = key.filter(item => item !== 'PRODUCT' && item !== 'UNIQUE_ID' && item.startsWith('Mon'));
+                      var dates = key.filter(item => new Date(item.split('_').join('/')).getDay());
+                      var PRODUCT = row.PRODUCT;
+                      var UNIQUE_ID = row.UNIQUE_ID;
+                      const temp = {
+                        PRODUCT: PRODUCT,
+                        UNIQUE_ID: UNIQUE_ID,
+                      }
+                      const thisDate = [];
+                      allDate.forEach(async date => {
+                        var MATERIAL_AVAIL_DATE = new Date(date.split('_').join(' ')).toLocaleDateString();
+                        var orderQuanrity = row[date];
+                        temp[date.split(' ').join('_')] = orderQuanrity ? orderQuanrity : "_";//date format depend
+                        thisDate.push(orderQuanrity ? orderQuanrity : "_")
+                      })
+                      const DATES = Object.keys(temp).filter(_date => _date !== "PRODUCT" && _date !== "UNIQUE_ID");
+                      if (!temp.PRODUCT) {
+                        temp.TYPE = "INVALID"
+                        temp.REASON = "NULL_PRODUCT"
+                      }
+                      else if (!temp.UNIQUE_ID) {
+                        temp.TYPE = "INVALID"
+                        temp.REASON = "NULL_ID"
+                      }
+                      else if (thisDate.find(value => value === "_")) {
+                        temp.TYPE = "INVALID"
+                        temp.REASON = "NULL"
+                      } else if (thisDate.find(value => !Number(value))) {
+                        temp.TYPE = "INVALID"
+                        temp.REASON = "String TYPE"
+                      } else if (!HEADER_ITEM.find(obj => obj.PRODUCT_ID === temp.PRODUCT && obj.UNIQUE_ID == temp.UNIQUE_ID)) {
+                        temp.TYPE = "INVALID"
+                        temp.REASON = "INVALID_ID"
+                      }
+                      else if (SEED_ORDER.find(obj => ((obj.UNIQUE_ID == temp.UNIQUE_ID) && DATES.includes(new Date(obj.MATERIAL_AVAIL_DATE).toDateString().split(" ").join("_"))))) {
+                        temp.TYPE = "INVALID"
+                        temp.REASON = "ALREADY_EXIST"
+                      } else {
+                        temp.TYPE = "VALID"
+                        temp.REASON = "_"
+                      }
+                      validList.push(temp)
+                    })
 
-            // }
-            if (JSON.parse(data.excelorder)[0].length !== 0) {
-              JSON.parse(data.excelorder)[0].forEach(
-                item => {
-                  if (!message.includes(item.UNIQUE_ID))
-                    message.push(item.UNIQUE_ID);
-                }
-              )
-              msg1 = [...new Set(message)].join(',') + " CREATED.";
-              //finalMessage = finalMessage+msg1
+                    const find = validList.find(obj => obj.TYPE === "INVALID")
+                    if (find) {
+                      that.errorTable
+                        .then(dialog => {
+                          dialog.open();
+                          that.byId("table2").setModel(new sap.ui.model.json.JSONModel({ items: validList }));
+                          sap.m.MessageToast.show("BROWSE FAILED");
+                          that.bindModel(validList, that.byId("table2"));
+                          that.byId("typeSelect").setModel(new sap.ui.model.json.JSONModel({ types: [{ type: "ALL" }, { type: "VALID" }, { type: "INVALID" }] }));
+                          that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({
+                            reason:
+                              [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "String TYPE" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST" }]
+                          }));
+                        })
+                    }
+                    else {
+                      const dub = [];
+                      const data = [];
+                      catchData.forEach(obj => {
+                        if (!(dub.includes(obj.UNIQUE_ID))) {
+                          data.push(obj)
+                        }
+                        dub.push(obj.UNIQUE_ID);
+                      })
+                      const allOrders = [];
+                      const oModel = that.getOwnerComponent().getModel();
+                      //start
+                      if (data.length === 0) {
+                        return sap.m.MessageToast.show("THE EXCEL IS EMPTY");
+                      }
+                      debugger
+                      data.forEach(async row => {
+                        var key = Object.keys(row);
+                        //var dates = key.filter(item => item !== 'PRODUCT' && item !== 'UNIQUE_ID' && item.startsWith('Mon'));
+                        var dates = key.filter(item => new Date(item.split('_').join('/')).getDay());
+                        var PRODUCT = row.PRODUCT;
+                        var UNIQUE_ID = row.UNIQUE_ID;
+                        if (PRODUCT && UNIQUE_ID) {
+                          dates.forEach(async date => {
+                            var MATERIAL_AVAIL_DATE = new Date(date.split('_').join(' ')).toLocaleDateString();
+                            var orderQuanrity = row[date];
+                            if (Number(orderQuanrity)) {
+                              allOrders.push(
+                                {
+                                  PRODUCT: PRODUCT,
+                                  UNIQUE_ID: UNIQUE_ID + '',
+                                  ORDER_QUANTITY: Number(orderQuanrity),
+                                  MATERIAL_AVAIL_DATE: MATERIAL_AVAIL_DATE,
+                                  CREADTED_DATE: new Date().toLocaleDateString(),
+                                }
+                              )
+                            }
+                          })
+                        }
+                      })
+                      //end
+                      if (allOrders.length === 0) {
+                        return sap.m.MessageToast.show("THE EXCEL DON'T HAVE ANY VALID DATA");
+                      }
+                      oModel.callFunction("/excelorder", {
+                        method: "GET",
+                        urlParameters: {
+                          FLAG: "C",
+                          OBJ: JSON.stringify(allOrders)
+                        },
+                        success: async function (data) {
+                          //sap.m.MessageToast.show("Create Done");
+                          const message = [];
+                          // const errorMessage = [];
+                          var msg1, msg2, finalMessage = "";
+                          //that.reset();
+                          //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
+                          // if(JSON.parse(data.excelorder)[0].length !== 0 && JSON.parse(data.excelorder)[1].length !== 0){
+
+                          // }
+                          if (JSON.parse(data.excelorder)[0].length !== 0) {
+                            JSON.parse(data.excelorder)[0].forEach(
+                              item => {
+                                if (!message.includes(item.UNIQUE_ID))
+                                  message.push(item.UNIQUE_ID);
+                              }
+                            )
+                            msg1 = [...new Set(message)].join(',') + " CREATED.";
+                            //finalMessage = finalMessage+msg1
+                          }
+                          if (JSON.parse(data.excelorder)[1].length !== 0) {
+                            msg2 = [...new Set(JSON.parse(data.excelorder)[1])].join(', ');
+                            //finalMessage = finalMessage+ "\n" + msg2
+                          }
+                          if (msg1) {
+                            sap.m.MessageToast.show(msg1, { duration: 2000 });
+                            if (msg2) setTimeout(() => {
+                              sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+                            }, 2000)
+                          } else {
+                            //that.errorTable(catchData);
+                            sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+                          }
+                          // if (!msg1 && msg2) sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+                          // if (msg1) setTimeout(() => {
+                          //   sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
+                          // }, 2000)
+                        },
+                        error: function (error) {
+                          console.log(error);
+                          sap.m.MessageToast.show("Create Failed");
+                        },
+                      });
+                    }
+                  },
+                  error: function (error) {
+                    console.log(error);
+                  }
+                })
+            },
+            error: function (error) {
+              console.log(error);
             }
-            if (JSON.parse(data.excelorder)[1].length !== 0) {
-              msg2 = [...new Set(JSON.parse(data.excelorder)[1])].join(', ');
-              //finalMessage = finalMessage+ "\n" + msg2
+          })
+      },
+      onCloseErrorTable: function () {
+        that.byId("errorTableDialog").close();
+      },
+      bindModel: function (array, OTable) {
+        let count = 1;
+        const oModel = that.getOwnerComponent().getModel();
+        if (OTable.getColumns()[0]) {
+          OTable.removeAllColumns();
+          OTable.removeAllCustomData();
+        }
+        var noOfColumn = Object.keys(array[0]).length;
+        for (let i = 0; i < noOfColumn; i++) {
+          var oColumn = new sap.m.Column(
+            Object.keys(array[0])[i] + "" + Math.floor((Math.random() * 1000)),
+            {
+              header: new sap.m.Label({
+                text: Object.keys(array[0])[i],
+              }),
             }
-            if (msg1) {
-              sap.m.MessageToast.show(msg1, { duration: 2000 });
-              if (msg2) setTimeout(() => {
-                sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-              }, 2000)
-            } else {
-              sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-            }
-            // if (!msg1 && msg2) sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-            // if (msg1) setTimeout(() => {
-            //   sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-            // }, 2000)
-          },
-          error: function (error) {
-            console.log(error);
-            sap.m.MessageToast.show("Create Failed");
-          },
-        });
+          );
+          OTable.addColumn(oColumn);
+        }
+        var oCell = [];
+        for (let i = 0; i < noOfColumn; i++) {
+          let char = "{" + Object.keys(array[0])[i] + "}";
+          var cell1;
+          cell1 = new sap.m.Text({
+            text: char
+          });
+          //cell1.addStyleClass("red")
+          oCell.push(cell1);
+        }
+        var aColList = new sap.m.ColumnListItem(
+          Object.keys(array[0])[1] + "ID" + Math.floor((Math.random() * 1000)),
+          {
+            cells: oCell
+          }
+        );
+        OTable.bindItems("/items", aColList);
+      },
+      textFormat: function (value) {
+        console.log(value);
+      },
+      onChangeType: function () {
+        let key = that.byId("typeSelect").getSelectedKey();
+        //let key2 = that.byId("reasonSelect").getSelectedKey();
+        //if(key === "ALL") key = "";
+        if (key === "VALID")
+          that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [] }));
+        else
+          that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "String TYPE" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST" }] }));
+        //if(key2 === "ALL") key2 = "";
+        const items = that.byId("table2").getBinding("items");
+        let filter;
+        if (key === "ALL")
+          filter = new sap.ui.model.Filter("TYPE", sap.ui.model.FilterOperator.Contains, "");
+        else
+          filter = new sap.ui.model.Filter("TYPE", sap.ui.model.FilterOperator.EQ, key);
+        items.filter(filter);
+      },
+      onChangeReason: function () {
+        let key1 = that.byId("typeSelect").getSelectedKey();
+        let key2 = that.byId("reasonSelect").getSelectedKey();
+        if (key1 === "ALL") key1 = "";
+        //if(key2 === "ALL") key2 = "";
+        const items = that.byId("table2").getBinding("items");
+        let filter;
+        if (key2 === "ALL")
+          filter = new sap.ui.model.Filter([new sap.ui.model.Filter("REASON", sap.ui.model.FilterOperator.Contains, ""),
+          new sap.ui.model.Filter("TYPE", sap.ui.model.FilterOperator.Contains, key1)],
+            true
+          );
+        else
+          filter = new sap.ui.model.Filter("REASON", sap.ui.model.FilterOperator.EQ, key2);
+        items.filter(filter);
       }
     });
   }

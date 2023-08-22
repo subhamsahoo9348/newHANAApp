@@ -1,0 +1,39 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:table="sap.ui.table" xmlns:core="sap.ui.core" xmlns:l="sap.ui.layout">
+	<Dialog id="errorTableDialog" contentHeight="50%" title="EXCEL STATUS" titleAlignment="Center" >
+  <content>
+  <Label text="TYPE"></Label>
+  <Select id="typeSelect" textAlign="Center" change="onChangeType" selectedKey="ALL" items="{/types}">
+    <core:Item text="{type}" key="{type}" />
+  </Select>
+   <Label text="REASON"></Label>
+  <Select id="reasonSelect" textAlign="Center" change="onChangeReason" selectedKey="ALL" items="{/reason}">
+    <core:Item text="{reason}" key="{reason}" />
+  </Select>
+  <Table id="table2">
+  <!-- <columns>
+  <Column ><Text text="PRODUCT"></Text></Column>
+  <Column ><Text text="ID"></Text></Column>
+  <Column ><Text text="QUANTITY"></Text></Column>
+  <Column ><Text text="DATE"></Text></Column>
+  <Column ><Text text="TYPE"></Text></Column>
+  <Column ><Text text="REASON"></Text></Column>
+  </columns>
+  <items>
+  <ColumnListItem >
+  <cells>
+  <Text text="{PRODUCT}"></Text>
+  <Text text="{UNIQUE_ID}"></Text>
+  <Text text="{ORDER_QUANTITY}"></Text>
+  <Text text="{MATERIAL_AVAIL_DATE}"></Text>
+  <Text text="{TYPE}"></Text>
+  <Text text="{REASON}"></Text>
+  </cells>
+  </ColumnListItem>
+  </items> -->
+  </Table>
+  </content>
+  <endButton>
+        <Button tooltip="Cancel" text="CANCEL" type="Reject" press=".onCloseErrorTable"/>
+  </endButton>
+	</Dialog>
+</core:FragmentDefinition>
