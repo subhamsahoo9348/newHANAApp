@@ -437,7 +437,6 @@ sap.ui.define(
         return aCols;
       },
       excelOrder: async function (catchData) {
-        //const wait = await that.validDataFunction(catchData)
         //validDataFunction Start
         let SEED_ORDER, HEADER_ITEM;
         that.getOwnerComponent().getModel()
@@ -448,7 +447,6 @@ sap.ui.define(
                 .read("/UNIQUE_ID_HEADER", {
                   success: function (headeritem) {
                     HEADER_ITEM = headeritem.results;
-                    const allOrders = [];
                     const dub = [];
                     const data = [];
                     catchData.forEach(obj => {
@@ -458,9 +456,6 @@ sap.ui.define(
                       dub.push(obj.UNIQUE_ID);
                     })
                     data.forEach(async row => {
-                      var key = Object.keys(row);
-                      //var dates = key.filter(item => item !== 'PRODUCT' && item !== 'UNIQUE_ID' && item.startsWith('Mon'));
-                      var dates = key.filter(item => new Date(item.split('_').join('/')).getDay());
                       var PRODUCT = row.PRODUCT;
                       var UNIQUE_ID = row.UNIQUE_ID;
                       const temp = {
@@ -469,7 +464,6 @@ sap.ui.define(
                       }
                       const thisDate = [];
                       allDate.forEach(async date => {
-                        var MATERIAL_AVAIL_DATE = new Date(date.split('_').join(' ')).toLocaleDateString();
                         var orderQuanrity = row[date];
                         temp[date.split(' ').join('_')] = orderQuanrity ? orderQuanrity : "_";//date format depend
                         thisDate.push(orderQuanrity ? orderQuanrity : "_")
@@ -519,6 +513,7 @@ sap.ui.define(
                         })
                     }
                     else {
+                      validList = [];
                       const dub = [];
                       const data = [];
                       catchData.forEach(obj => {
@@ -533,10 +528,8 @@ sap.ui.define(
                       if (data.length === 0) {
                         return sap.m.MessageToast.show("THE EXCEL IS EMPTY");
                       }
-                      debugger
                       data.forEach(async row => {
                         var key = Object.keys(row);
-                        //var dates = key.filter(item => item !== 'PRODUCT' && item !== 'UNIQUE_ID' && item.startsWith('Mon'));
                         var dates = key.filter(item => new Date(item.split('_').join('/')).getDay());
                         var PRODUCT = row.PRODUCT;
                         var UNIQUE_ID = row.UNIQUE_ID;
@@ -569,15 +562,8 @@ sap.ui.define(
                           OBJ: JSON.stringify(allOrders)
                         },
                         success: async function (data) {
-                          //sap.m.MessageToast.show("Create Done");
                           const message = [];
-                          // const errorMessage = [];
-                          var msg1, msg2, finalMessage = "";
-                          //that.reset();
-                          //that.byId("table").setModel(new sap.ui.model.json.JSONModel({ salesOrder: JSON.parse(data.excelorder)[0] }));
-                          // if(JSON.parse(data.excelorder)[0].length !== 0 && JSON.parse(data.excelorder)[1].length !== 0){
-
-                          // }
+                          var msg1;
                           if (JSON.parse(data.excelorder)[0].length !== 0) {
                             JSON.parse(data.excelorder)[0].forEach(
                               item => {
@@ -585,26 +571,9 @@ sap.ui.define(
                                   message.push(item.UNIQUE_ID);
                               }
                             )
-                            msg1 = [...new Set(message)].join(',') + " CREATED.";
-                            //finalMessage = finalMessage+msg1
+                            msg1 = "ID " + [...new Set(message)].join(',') + " CREATED.";
                           }
-                          if (JSON.parse(data.excelorder)[1].length !== 0) {
-                            msg2 = [...new Set(JSON.parse(data.excelorder)[1])].join(', ');
-                            //finalMessage = finalMessage+ "\n" + msg2
-                          }
-                          if (msg1) {
-                            sap.m.MessageToast.show(msg1, { duration: 2000 });
-                            if (msg2) setTimeout(() => {
-                              sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-                            }, 2000)
-                          } else {
-                            //that.errorTable(catchData);
-                            sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-                          }
-                          // if (!msg1 && msg2) sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-                          // if (msg1) setTimeout(() => {
-                          //   sap.m.MessageBox.error(msg2, { icon: sap.m.MessageBox.Icon.ERROR });
-                          // }, 2000)
+                          sap.m.MessageToast.show(msg1, { duration: 2000 });
                         },
                         error: function (error) {
                           console.log(error);
@@ -652,7 +621,6 @@ sap.ui.define(
           cell1 = new sap.m.Text({
             text: char
           });
-          //cell1.addStyleClass("red")
           oCell.push(cell1);
         }
         var aColList = new sap.m.ColumnListItem(
@@ -663,18 +631,12 @@ sap.ui.define(
         );
         OTable.bindItems("/items", aColList);
       },
-      textFormat: function (value) {
-        console.log(value);
-      },
       onChangeType: function () {
         let key = that.byId("typeSelect").getSelectedKey();
-        //let key2 = that.byId("reasonSelect").getSelectedKey();
-        //if(key === "ALL") key = "";
         if (key === "VALID")
           that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [] }));
         else
           that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "String TYPE" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST" }] }));
-        //if(key2 === "ALL") key2 = "";
         const items = that.byId("table2").getBinding("items");
         let filter;
         if (key === "ALL")
@@ -687,7 +649,6 @@ sap.ui.define(
         let key1 = that.byId("typeSelect").getSelectedKey();
         let key2 = that.byId("reasonSelect").getSelectedKey();
         if (key1 === "ALL") key1 = "";
-        //if(key2 === "ALL") key2 = "";
         const items = that.byId("table2").getBinding("items");
         let filter;
         if (key2 === "ALL")
