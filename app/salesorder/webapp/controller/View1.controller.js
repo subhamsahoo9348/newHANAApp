@@ -459,8 +459,8 @@ sap.ui.define(
                       var PRODUCT = row.PRODUCT;
                       var UNIQUE_ID = row.UNIQUE_ID;
                       const temp = {
-                        PRODUCT: PRODUCT,
-                        UNIQUE_ID: UNIQUE_ID,
+                        PRODUCT: PRODUCT ? PRODUCT : "_",
+                        UNIQUE_ID: UNIQUE_ID ? UNIQUE_ID : "_",
                       }
                       const thisDate = [];
                       allDate.forEach(async date => {
@@ -469,11 +469,11 @@ sap.ui.define(
                         thisDate.push(orderQuanrity ? orderQuanrity : "_")
                       })
                       const DATES = Object.keys(temp).filter(_date => _date !== "PRODUCT" && _date !== "UNIQUE_ID");
-                      if (!temp.PRODUCT) {
+                      if (temp.PRODUCT === "_") {
                         temp.TYPE = "INVALID"
                         temp.REASON = "NULL_PRODUCT"
                       }
-                      else if (!temp.UNIQUE_ID) {
+                      else if (temp.UNIQUE_ID === "_") {
                         temp.TYPE = "INVALID"
                         temp.REASON = "NULL_ID"
                       }
@@ -481,15 +481,21 @@ sap.ui.define(
                         temp.TYPE = "INVALID"
                         temp.REASON = "NULL"
                       } else if (thisDate.find(value => !Number(value))) {
+                        const string = thisDate.find(value => !Number(value));
+                        const index = thisDate.indexOf(string);
+                        temp[DATES[index]] = temp[DATES[index]] + " "
                         temp.TYPE = "INVALID"
-                        temp.REASON = "String TYPE"
+                        temp.REASON = "INVALID_QUANTITY"
                       } else if (!HEADER_ITEM.find(obj => obj.PRODUCT_ID === temp.PRODUCT && obj.UNIQUE_ID == temp.UNIQUE_ID)) {
+                        temp.UNIQUE_ID = temp.UNIQUE_ID + " "
                         temp.TYPE = "INVALID"
                         temp.REASON = "INVALID_ID"
                       }
                       else if (SEED_ORDER.find(obj => ((obj.UNIQUE_ID == temp.UNIQUE_ID) && DATES.includes(new Date(obj.MATERIAL_AVAIL_DATE).toDateString().split(" ").join("_"))))) {
+                        const obj = SEED_ORDER.find(obj => ((obj.UNIQUE_ID == temp.UNIQUE_ID) && DATES.includes(new Date(obj.MATERIAL_AVAIL_DATE).toDateString().split(" ").join("_"))))
+                        temp[new Date(obj.MATERIAL_AVAIL_DATE).toDateString().split(" ").join("_")] = temp[new Date(obj.MATERIAL_AVAIL_DATE).toDateString().split(" ").join("_")] + " "
                         temp.TYPE = "INVALID"
-                        temp.REASON = "ALREADY_EXIST"
+                        temp.REASON = "ALREADY_EXIST_ON_THAT_DATE"
                       } else {
                         temp.TYPE = "VALID"
                         temp.REASON = "_"
@@ -508,7 +514,7 @@ sap.ui.define(
                           that.byId("typeSelect").setModel(new sap.ui.model.json.JSONModel({ types: [{ type: "ALL" }, { type: "VALID" }, { type: "INVALID" }] }));
                           that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({
                             reason:
-                              [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "String TYPE" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST" }]
+                              [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "INVALID_QUANTITY" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST_ON_THAT_DATE" }]
                           }));
                         })
                     }
@@ -630,13 +636,48 @@ sap.ui.define(
           }
         );
         OTable.bindItems("/items", aColList);
+        that.addClass(OTable);
+      },
+      addClass: function (oTable) {
+        oTable.getItems()
+          .forEach(items => {
+            if (items.getCells()[items.getCells().length - 2].getText() === "INVALID")
+              items.getCells()[items.getCells().length - 2].addStyleClass("red");
+            else
+              items.getCells()[items.getCells().length - 2].addStyleClass("green");
+          })
+        oTable.getItems()
+          .forEach(items => {
+            const length = items.getCells().length - 2;
+            for (let i = 0; i < length; i++) {
+              const text = items.getCells()[i].getText();
+              if (text === "_" || text.endsWith(" "))
+                items.getCells()[i].addStyleClass("crimson");
+            }
+          })
+      },
+      removeClass: function (oTable) {
+        // oTable.getItems()
+        //   .forEach(items => {
+        //     items.getCells()[items.getCells().length - 2].removeStyleClass("red");
+        //     items.getCells()[items.getCells().length - 2].removeStyleClass("green");
+        //   })
+        oTable.getItems()
+          .forEach(items => {
+            const length = items.getCells().length - 1;
+            for (let i = 0; i < length; i++) {
+              items.getCells()[i].removeStyleClass("red");
+              items.getCells()[i].removeStyleClass("crimson");
+              items.getCells()[i].removeStyleClass("green");
+            }
+          })
       },
       onChangeType: function () {
         let key = that.byId("typeSelect").getSelectedKey();
         if (key === "VALID")
           that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [] }));
         else
-          that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "String TYPE" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST" }] }));
+          that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "INVALID_QUANTITY" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST_ON_THAT_DATE" }] }));
         const items = that.byId("table2").getBinding("items");
         let filter;
         if (key === "ALL")
@@ -644,6 +685,8 @@ sap.ui.define(
         else
           filter = new sap.ui.model.Filter("TYPE", sap.ui.model.FilterOperator.EQ, key);
         items.filter(filter);
+        that.removeClass(that.byId("table2"))
+        that.addClass(that.byId("table2"))
       },
       onChangeReason: function () {
         let key1 = that.byId("typeSelect").getSelectedKey();
@@ -659,6 +702,8 @@ sap.ui.define(
         else
           filter = new sap.ui.model.Filter("REASON", sap.ui.model.FilterOperator.EQ, key2);
         items.filter(filter);
+        that.removeClass(that.byId("table2"))
+        that.addClass(that.byId("table2"))
       }
     });
   }

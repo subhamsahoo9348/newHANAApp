@@ -54,5 +54,15 @@ input {
     width: 350px;
 }
  .red{
-    background-color: red;
+    color: #c0392b;
+ }
+ .crimson{
+    color:crimson;
+ }
+ .green{
+    color: green;
+ }
+
+ .vBox{
+    margin: 10px;
  }
