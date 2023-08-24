@@ -8,7 +8,7 @@
     <core:Item text="{type}" key="{type}" />
   </Select>
   </VBox>
-  <VBox  class="vBox">
+  <VBox  class="vBox" id="reasonBox">
    <Label text="REASON"></Label>
   <Select id="reasonSelect" textAlign="Center" change="onChangeReason" selectedKey="ALL" items="{/reason}">
     <core:Item text="{reason}" key="{reason}" />

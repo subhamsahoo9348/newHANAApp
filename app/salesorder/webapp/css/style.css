@@ -53,16 +53,30 @@ input {
     height: 30px;
     width: 350px;
 }
- .red{
-    color: #c0392b;
- }
- .crimson{
-    color:crimson;
- }
- .green{
-    color: green;
- }
 
- .vBox{
+.red {
+    color: #ff1900;
+}
+
+.crimson {
+    color: rgb(255, 0, 51);
+}
+
+.rotate {
+    rotate: 45deg;
+    font-size: 20px;
+}
+
+.green {
+    color: green;
+}
+.greenBorder{
+    background-color: rgb(202, 240, 202);
+}
+.redBorder{
+    background-color: rgb(240, 202, 202);
+}
+
+.vBox {
     margin: 10px;
- }
+}

@@ -459,25 +459,25 @@ sap.ui.define(
                       var PRODUCT = row.PRODUCT;
                       var UNIQUE_ID = row.UNIQUE_ID;
                       const temp = {
-                        PRODUCT: PRODUCT ? PRODUCT : "_",
-                        UNIQUE_ID: UNIQUE_ID ? UNIQUE_ID : "_",
+                        PRODUCT: PRODUCT ? PRODUCT : "+",
+                        UNIQUE_ID: UNIQUE_ID ? UNIQUE_ID : "+",
                       }
                       const thisDate = [];
                       allDate.forEach(async date => {
                         var orderQuanrity = row[date];
-                        temp[date.split(' ').join('_')] = orderQuanrity ? orderQuanrity : "_";//date format depend
-                        thisDate.push(orderQuanrity ? orderQuanrity : "_")
+                        temp[date.split(' ').join('_')] = orderQuanrity ? orderQuanrity : "+";//date format depend
+                        thisDate.push(orderQuanrity ? orderQuanrity : "+")
                       })
                       const DATES = Object.keys(temp).filter(_date => _date !== "PRODUCT" && _date !== "UNIQUE_ID");
-                      if (temp.PRODUCT === "_") {
+                      if (temp.PRODUCT === "+") {
                         temp.TYPE = "INVALID"
                         temp.REASON = "NULL_PRODUCT"
                       }
-                      else if (temp.UNIQUE_ID === "_") {
+                      else if (temp.UNIQUE_ID === "+") {
                         temp.TYPE = "INVALID"
                         temp.REASON = "NULL_ID"
                       }
-                      else if (thisDate.find(value => value === "_")) {
+                      else if (thisDate.find(value => value === "+")) {
                         temp.TYPE = "INVALID"
                         temp.REASON = "NULL"
                       } else if (thisDate.find(value => !Number(value))) {
@@ -611,7 +611,6 @@ sap.ui.define(
         var noOfColumn = Object.keys(array[0]).length;
         for (let i = 0; i < noOfColumn; i++) {
           var oColumn = new sap.m.Column(
-            Object.keys(array[0])[i] + "" + Math.floor((Math.random() * 1000)),
             {
               header: new sap.m.Label({
                 text: Object.keys(array[0])[i],
@@ -630,7 +629,6 @@ sap.ui.define(
           oCell.push(cell1);
         }
         var aColList = new sap.m.ColumnListItem(
-          Object.keys(array[0])[1] + "ID" + Math.floor((Math.random() * 1000)),
           {
             cells: oCell
           }
@@ -644,24 +642,28 @@ sap.ui.define(
             if (items.getCells()[items.getCells().length - 2].getText() === "INVALID")
               items.getCells()[items.getCells().length - 2].addStyleClass("red");
             else
+            {
               items.getCells()[items.getCells().length - 2].addStyleClass("green");
+              items.addStyleClass("greenBorder")
+            }
           })
         oTable.getItems()
           .forEach(items => {
             const length = items.getCells().length - 2;
             for (let i = 0; i < length; i++) {
               const text = items.getCells()[i].getText();
-              if (text === "_" || text.endsWith(" "))
+              if (text === "+" || text.endsWith(" ")){
                 items.getCells()[i].addStyleClass("crimson");
+                items.addStyleClass("redBorder")
+              }
+              if (text === "+"){
+                items.getCells()[i].addStyleClass("rotate");
+                items.addStyleClass("redBorder")
+              }
             }
           })
       },
       removeClass: function (oTable) {
-        // oTable.getItems()
-        //   .forEach(items => {
-        //     items.getCells()[items.getCells().length - 2].removeStyleClass("red");
-        //     items.getCells()[items.getCells().length - 2].removeStyleClass("green");
-        //   })
         oTable.getItems()
           .forEach(items => {
             const length = items.getCells().length - 1;
@@ -669,15 +671,22 @@ sap.ui.define(
               items.getCells()[i].removeStyleClass("red");
               items.getCells()[i].removeStyleClass("crimson");
               items.getCells()[i].removeStyleClass("green");
+              items.getCells()[i].removeStyleClass("rotate");
+              items.removeStyleClass("redBorder");
+              items.removeStyleClass("greenBorder");
             }
           })
       },
       onChangeType: function () {
         let key = that.byId("typeSelect").getSelectedKey();
-        if (key === "VALID")
+        if (key === "VALID"){
           that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [] }));
-        else
+          that.byId("reasonBox").setVisible(false);
+        }
+        else{
           that.byId("reasonSelect").setModel(new sap.ui.model.json.JSONModel({ reason: [{ reason: "ALL" }, { reason: "NULL" }, { reason: "NULL_PRODUCT" }, { reason: "NULL_ID" }, { reason: "INVALID_QUANTITY" }, { reason: "INVALID_ID" }, { reason: "ALREADY_EXIST_ON_THAT_DATE" }] }));
+          that.byId("reasonBox").setVisible(true);
+        }
         const items = that.byId("table2").getBinding("items");
         let filter;
         if (key === "ALL")
